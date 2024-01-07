@@ -1,18 +1,21 @@
+use std::fmt::{Debug, Formatter};
+
 pub struct Pos {
     x: u8,
     y: u8,
 }
 
 const BOARD_MASK: u32 = 0b1111_1111_1111_1111_1111;
-const C1: u32 = 0b0000_0000_0000_0000_1111;
-const C2: u32 = C1 << 4;
-const C3: u32 = C1 << 8;
-const C4: u32 = C1 << 12;
-const R1: u32 = C1 << 16;
-const R2: u32 = 0b0001_0001_0001_0001;
-const R3: u32 = R2 << 1;
-const R4: u32 = R2 << 2;
-const R5: u32 = R2 << 3;
+const C1: u32 = 0b0001_0001_0001_0001_0001;
+const C2: u32 = C1 << 1;
+const C3: u32 = C1 << 2;
+const C4: u32 = C1 << 3;
+
+const R1: u32 = 0b0000_0000_0000_0000_1111;
+const R2: u32 = R1 << 4;
+const R3: u32 = R1 << 8;
+const R4: u32 = R1 << 12;
+const R5: u32 = R1 << 16;
 
 const CELL_MASKS: [u32; 20] = [
     C1 & R1, C2 & R1, C3 & R1, C4 & R1,
@@ -22,7 +25,7 @@ const CELL_MASKS: [u32; 20] = [
     C1 & R5, C2 & R5, C3 & R5, C4 & R5,
 ];
 
-#[derive(Debug, PartialEq)]
+#[derive(PartialEq)]
 pub struct Board {
     mask: u32,
     p_2x1: u32,
@@ -31,14 +34,44 @@ pub struct Board {
     p_1x1: u32,
 }
 
+impl Debug for Board {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut s = String::new();
+        for i in 0..20 {
+            if i % 4 == 0 && i != 0 {
+                s.push('\n');
+            }
+            let c = CELL_MASKS[i];
+            if (c & self.p_2x2) | (left(c) & self.p_2x2) | (up(c) & self.p_2x2) | (left(up(c)) & self.p_2x2) != 0 {
+                s.push('+');
+                continue;
+            }
+            if c & self.p_2x1 | left(c) & self.p_2x1 != 0 {
+                s.push('-');
+                continue;
+            }
+            if c & self.p_1x2 | up(c) & self.p_1x2 != 0 {
+                s.push('|');
+                continue;
+            }
+            if c & self.p_1x1 != 0 {
+                s.push('o');
+                continue;
+            }
+            s.push(' ');
+        }
+        write!(f, "{}", s)
+    }
+}
+
 impl Board {
     pub fn new(p_2x2: u32, p_2x1: u32, p_1x2: u32, p_1x1: u32) -> Board {
         let mut mask = p_1x1;
-        mask |= p_2x1 | (p_2x1 << 1);
-        mask |= p_1x2 | (p_1x2 << 4);
-        mask |= p_2x2 | (p_2x2 << 5) | (p_2x2 << 4) | (p_2x2 << 1);
+        mask |= p_2x1 | right(p_2x1);
+        mask |= p_1x2 | down(p_1x2);
+        mask |= p_2x2 | right(p_2x2) | down(p_2x2) | right(down(p_2x2));
         Board {
-            mask: p_2x2 | p_1x2 | p_2x1 | p_1x1,
+            mask,
             p_2x2,
             p_2x1,
             p_1x2,
