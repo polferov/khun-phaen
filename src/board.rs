@@ -1,9 +1,4 @@
-use std::fmt::{Debug, Formatter};
-
-pub struct Pos {
-    x: u8,
-    y: u8,
-}
+use std::fmt::{Debug, Display, Formatter};
 
 const BOARD_MASK: u32 = 0b1111_1111_1111_1111_1111;
 const C1: u32 = 0b0001_0001_0001_0001_0001;
@@ -25,7 +20,7 @@ const CELL_MASKS: [u32; 20] = [
     C1 & R5, C2 & R5, C3 & R5, C4 & R5,
 ];
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq, Hash, Clone)]
 pub struct Board {
     mask: u32,
     p_2x1: u32,
@@ -34,7 +29,7 @@ pub struct Board {
     p_1x1: u32,
 }
 
-impl Debug for Board {
+impl Display for Board {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut s = String::new();
         for i in 0..20 {
@@ -272,6 +267,10 @@ impl Board {
                 (self.p_1x1 ^ down(m)) | m,
             ));
         }
+    }
+
+    pub fn is_solved(&self) -> bool {
+        self.p_2x2 & R4 & C2 != 0
     }
 }
 
