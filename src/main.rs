@@ -8,7 +8,9 @@ fn main() {
         (1 << 0) | (1 << 3) | (1 << 12) | (1 << 15),
         (1 << 13) | (1 << 14) | (1 << 17) | (1 << 18),
     );
+    let now = std::time::Instant::now();
     let search = search::search(start);
+    println!("Time: {:?}", now.elapsed());
     println!("Solution length: {}", search.len());
     for b in search.iter() {
         println!();

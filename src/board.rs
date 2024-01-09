@@ -1,4 +1,4 @@
-use std::fmt::{Debug, Display, Formatter};
+use std::fmt::{Display, Formatter};
 
 const BOARD_MASK: u32 = 0b1111_1111_1111_1111_1111;
 const C1: u32 = 0b0001_0001_0001_0001_0001;
@@ -71,28 +71,6 @@ impl Board {
             p_2x1,
             p_1x2,
             p_1x1,
-        }
-    }
-
-    pub fn flip_h(&self) -> Board {
-        let p_2x2 = flip_2(self.p_2x2);
-        let p_2x1 = flip_2(self.p_2x1);
-        let p_1x2 = flip_1(self.p_1x2);
-        let p_1x1 = flip_1(self.p_1x1);
-        return Board::new(p_2x2, p_2x1, p_1x2, p_1x1);
-
-        fn flip_1(p: u32) -> u32 {
-            0
-                | ((p & C1) << 3)
-                | ((p & C2) << 1)
-                | ((p & C3) >> 1)
-                | ((p & C4) >> 3)
-        }
-        fn flip_2(p: u32) -> u32 {
-            0
-                | ((p & C1) << 2)
-                | (p & C2)
-                | ((p & C3) >> 2)
         }
     }
 
